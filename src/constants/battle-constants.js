@@ -5,4 +5,7 @@ export const STATUS = {
   SELECT_SKILL_COMMAND: 2,
   ATTACK_PHASE: 3,
   BATTLE_END: 4,
+  NOT_FOUND: 999,
 }
+
+export const MESSAGE_SPEED = 1500;
