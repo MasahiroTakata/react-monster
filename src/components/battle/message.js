@@ -25,14 +25,10 @@ const MainCommandModal = (props) => {
     const { onClickFight, onClickNotFound } = onClickCommands;
 
     return (<div style={{ ...messageStyle.mainCommandContainer, ...messageStyle.border }}>
-        {/* <MainCommand clickEvent={onClickFitght}>たたかう</MainCommand>
+        <MainCommand clickEvent={onClickFight}>たたかう</MainCommand>
         <MainCommand clickEvent={onClickNotFound}>どうぐ</MainCommand>
         <MainCommand clickEvent={onClickNotFound}>リアモン</MainCommand>
-        <MainCommand clickEvent={onClickNotFound}>にげる</MainCommand> */}
-        <MainCommand clickEvent={onClickFight}>たたかう</MainCommand>
-        <MainCommand>どうぐ</MainCommand>
-        <MainCommand>リアモン</MainCommand>
-        <MainCommand>にげる</MainCommand>
+        <MainCommand clickEvent={onClickNotFound}>にげる</MainCommand>
     </div>)
 }
 // 4択の表示

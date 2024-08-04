@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import Oponent from "../components/battle/oponent";
 import Player  from "../components/battle/player";
 import Message from "../components/battle/message";
-import { STATUS } from "../constants/battle-constants";
+import wait from "../utils/wait";
+import { STATUS, MESSAGE_SPEED } from "../constants/battle-constants";
 
 const DEFAULT_PLAYERS_SKILL = [
   {
@@ -55,21 +56,27 @@ const DEFAULT_OPONENT = {
 };
 
 const BattleScene = () => {
-  // const BattleScene = () => {
   const [screenStatus, setScreenStatus] = useState(STATUS.BATTLE_START);
   const [player, setPlayer] = useState(DEFAULT_PLAYER);
+  const [oponent, setOponent] = useState(DEFAULT_OPONENT);
   const [selectedSkillIndex, setSelectedSkillIndex] = useState(null);
   const [messageText, setMessageText] = useState(`あ！ やせいの\nSQLインジェクションがあらわれた！`);
-  // }
   // 画面上をクリックしたときの処理
   const onClickHandler = () => {
     switch (screenStatus) {
-        case STATUS.BATTLE_START:
-            goToMainCommand();
-            break;
-
-        default:
-            break;
+      case STATUS.BATTLE_START:
+        goToMainCommand();
+        break;
+      case STATUS.BATTLE_END:
+        if (window.confirm('リトライしますか？')) {
+            window.location.reload();
+        }
+        break;
+      case STATUS.NOT_FOUND:
+        goToMainCommand();
+        break;
+      default:
+        break;
     }
   }
   // メインコマンド選択に戻る
@@ -79,25 +86,163 @@ const BattleScene = () => {
   }
   // たたかうを選択したときの処理
   const onClickFight = () => {
-    console.log("たたかう");
     setScreenStatus(STATUS.SELECT_SKILL_COMMAND);
   }
   // わざを仮選択したときの処理
   const onClickSkill = (id) => {
     setSelectedSkillIndex(id);
-}
+  }
+  // わざを確定したときの処理
+  const onSelectSkill = () => {
+    // stateの更新はラグがあるため、変数に一旦格納
+    const tempPlayer = { ...player };
+    const tempOponent = { ...oponent };
+
+    // 選択したわざ
+    const selectedSkill = tempPlayer.skills[selectedSkillIndex];
+    setSelectedSkillIndex(null);
+
+    // わざのPPを減らす
+    tempPlayer.skills[selectedSkillIndex].pp --;
+    setPlayer(tempPlayer);
+
+    // 時間経過で戦闘を自動送りするため、非同期処理を実行
+    Promise.resolve()
+      // プレイヤーが攻撃を宣言！
+      .then(() => startPlayersAttack())
+      .then(() => wait(MESSAGE_SPEED))
+      // プレイヤーの攻撃フェーズ
+      .then(() => playersAttack())
+      .then(() => wait(MESSAGE_SPEED))
+      // 敵が攻撃を宣言！
+      .then(() => startOponentsAttack())
+      .then(() => wait(MESSAGE_SPEED))
+      // 敵の攻撃フェーズ
+      .then(() => oponentsAttack())
+      .then(() => wait(MESSAGE_SPEED))
+      // プレイヤーのコマンド選択に戻る
+      .then(() => goToMainCommand())
+      // 例外発生時 
+      .catch(err => handleError(err));
+
+    // プレイヤーが攻撃を宣言！
+    const startPlayersAttack = () => {
+      setMessageText(` ${player.name}の${selectedSkill.name}！`);
+      setScreenStatus(STATUS.ATTACK_PHASE);
+    }
+
+    // プレイヤーの攻撃フェーズ
+    const playersAttack = () => {
+        // わざが命中したかどうか
+        const isMissed = Math.random() < selectedSkill.missRate / 100;
+
+        if (isMissed) {
+            setMessageText(`しかし、はずれてしまった！`);
+        } else {
+            // 攻撃が当たった場合
+            switch (selectedSkill.type) {
+                case 'こうげき':
+                    // ダメージ計算
+                    const caluculatedDamage = Math.floor(selectedSkill.attack * tempPlayer.attackUpRate);
+                    setMessageText(`${player.name}に${caluculatedDamage}のダメージ！`);
+
+                    // 攻撃を当てた後のHP計算
+                    const afterHp = tempOponent.hp - caluculatedDamage;
+
+                    if (afterHp > 0) {
+                        tempOponent.hp = afterHp;
+                        setOponent(tempOponent);
+                    } else {
+                        tempOponent.hp = 0;
+                        setOponent(tempOponent);
+                        throw new Error('OPONENT_DEAD');
+                    }
+                    break;
+
+                case 'のうりょくUP':
+                    if (selectedSkill.attackUpRate > 0) {
+                        // 攻撃UPわざの場合
+                        tempPlayer.attackUpRate = tempPlayer.attackUpRate * selectedSkill.attackUpRate;
+                        setPlayer(tempPlayer);
+                        setMessageText(`${tempPlayer.name}のこうげきがグーンとあがった！`);
+                    } else if (selectedSkill.deffenceUpRate > 0) {
+                        // 防御UPわざの場合
+                        tempPlayer.deffenceUpRate = tempPlayer.deffenceUpRate * selectedSkill.deffenceUpRate;
+                        setPlayer(tempPlayer);
+                        setMessageText(`${tempPlayer.name}のぼうぎょがグーンとあがった！`);
+                    } else {
+                        setMessageText(`しかし、なにもおこらなかった。`);
+                    }
+                    break;
+                default:
+                    throw new Error('INVALID_SKILL_TYPE');
+            }
+        }
+    }
+
+    // 敵が攻撃を宣言！
+    const startOponentsAttack = () => {
+        setMessageText(`${oponent.name}のこうげき！`);
+    }
+
+    // 敵の攻撃フェーズ
+    const oponentsAttack = () => {
+        // ダメージ計算
+        const caluculatedDamage = Math.floor(tempOponent.attack / tempPlayer.deffenceUpRate);
+        setMessageText(`${tempPlayer.name}に${caluculatedDamage}のダメージ！`);
+
+        // 攻撃を受けた後のHP計算
+        const afterHp = tempPlayer.hp - caluculatedDamage;
+        if (afterHp > 0) {
+            tempPlayer.hp = afterHp;
+            setPlayer(tempPlayer);
+        } else {
+            tempPlayer.hp = 0;
+            setPlayer(tempPlayer);
+            throw new Error('PLAYER_DEAD');
+        }
+    }
+
+    const handleError = (err) => {
+      switch (err.message) {
+        // 敵が倒れたとき、バトル終了
+        case 'OPONENT_DEAD':
+          setMessageText(`${oponent.name}をたおした！`);
+          setScreenStatus(STATUS.BATTLE_END);
+          break;
+        // プレイヤーが倒れたとき、バトル終了
+        case 'PLAYER_DEAD':
+          setMessageText(`${player.name}はたおれてしまった！`);
+          setScreenStatus(STATUS.BATTLE_END);
+          break;
+        // その他のエラー
+        default:
+          alert(err);
+          break;
+      }
+    }
+  };
+  // 未開発のボタンをクリックしたときの処理
+  const onClickNotFound = () => {
+    setMessageText('この機能はまだできていないのじゃ！');
+    setScreenStatus(STATUS.NOT_FOUND);
+  }
+  // 戻るを選択したときの処理
+  const onClickReturnMain = () => {
+    goToMainCommand();
+  }
   const onClickCommands = {
     onClickFight,
-    // onClickReturnMain,
+    onClickReturnMain,
     onClickSkill,
-    // onClickNotFound,
-    // onSelectSkill
+    onClickNotFound,
+    onSelectSkill
 };
 
   return (
       <div style={battleSceneStyle.battleScene} onClick={onClickHandler}>
-          <Oponent />
-          <Player player={player}/>
+          <Oponent oponent={oponent} />
+          <Player player={player} />
           <Message status={screenStatus} onClickCommands={onClickCommands} skills={player.skills} selectedSkillIndex={selectedSkillIndex} messageText={messageText}/>
       </div>
   );
