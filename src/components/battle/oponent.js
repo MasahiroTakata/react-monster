@@ -1,14 +1,21 @@
-import Hp from './monster/HP';
 import Name from './monster/Name';
 import Image from './monster/Image';
+import Meter from './monster/Meter';
 
 const Oponent = (props) => {
     const { oponent } = props;
+    const progressStyle = {
+        height: '15px',
+        transition: '0.5s',
+        whiteSpace: 'nowrap',
+        borderRadius: '10px 10px 10px 10px',
+    };
+
     return (
         <div style={oponentStyle.oponentContainer}>
             <div style={oponentStyle.infoContainer}>
                 <Name name={oponent.name} level={oponent.level} textAlign='right' />
-                <Hp hp={oponent.hp} maxHp={oponent.maxHp} />
+                <Meter max={oponent.maxHp} current={oponent.hp} additionalStyles={progressStyle} />
             </div>
             <Image monster={oponent} size={60}>😈</Image>
         </div>
