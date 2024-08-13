@@ -1,8 +1,9 @@
-import React, { Children, useState } from 'react';
+import React, { useState } from 'react';
 import { STATUS } from "../../constants/battle-constants";
 
 const Message = (props) => {
     const { status, messageText } = props;
+
     return (
         <div style={messageStyle.messageContainer}>
             <MainMessage>{messageText}</MainMessage>
@@ -34,6 +35,7 @@ const MainCommandModal = (props) => {
 // 4択の表示
 const MainCommand = (props) => {
     const { clickEvent, children } = props;
+
     return (<Command style={messageStyle.mainCommandText} onClick={clickEvent}>{children}</Command>);
 }
 // わざコマンドを表示
@@ -60,17 +62,16 @@ const SkillCommandModal = (props) => {
 }
 const SkillCommand = (props) => {
     const { clickEvent, children } = props;
+
     return (<Command style={{ ...props.style, ...messageStyle.skillCommandText }} onClick={clickEvent}>{children}</Command>);
 }
 // コマンドの表示
 const Command = (props) => {
     const { children, style } = props;
     const [isHovering, setIsHovering] = useState(false);
-
     const handleMouseEnter = () => {
         setIsHovering(true);
     };
-
     const handleMouseLeave = () => {
         setIsHovering(false);
     };

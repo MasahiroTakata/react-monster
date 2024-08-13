@@ -5,12 +5,6 @@ import Meter from './monster/Meter';
 
 const Player = (props) => {
     const { player } = props;
-    const progressStyle = {
-        height: '15px',
-        transition: '1.0s',
-        whiteSpace: 'nowrap',
-        borderRadius: '10px 10px 10px 10px',
-    };
 
     return (
         <div style={playerStyle.playerContainer}>
@@ -18,7 +12,7 @@ const Player = (props) => {
             <div style={playerStyle.infoContainer}>
                 <Name name={player.name} level={player.level} textAlign='left' />
                 <Hp hp={player.hp} maxHp={player.maxHp} fontSize={18} />
-                <Meter max={player.maxHp} current={player.hp} additionalStyles={progressStyle} />
+                <Meter max={player.maxHp} current={player.hp} additionalStyles={playerStyle.progressStyle} />
             </div>
         </div>
     );
@@ -44,6 +38,12 @@ const playerStyle = {
         alignItems: 'center',
         padding: '12px',
         height: '100px'
+    },
+    progressStyle: {
+        height: '15px',
+        transition: '1.0s',
+        whiteSpace: 'nowrap',
+        borderRadius: '10px 10px 10px 10px',
     },
 }
 
