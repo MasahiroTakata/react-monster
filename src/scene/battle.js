@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import Oponent from "../components/battle/oponent";
+import Opponent from "../components/battle/opponent";
 import Player  from "../components/battle/player";
 import Message from "../components/battle/message";
 import wait from "../utils/wait";
@@ -48,7 +48,7 @@ const DEFAULT_PLAYER = {
     skills: DEFAULT_PLAYERS_SKILL,
 };
 
-const DEFAULT_OPONENT = {
+const DEFAULT_OPPONENT = {
     name: 'SQLインジェクション',
     level: 5,
     hp: 100,
@@ -59,7 +59,7 @@ const DEFAULT_OPONENT = {
 const BattleScene = () => {
     const [screenStatus, setScreenStatus] = useState(STATUS.BATTLE_START);
     const [player, setPlayer] = useState(DEFAULT_PLAYER);
-    const [oponent, setOponent] = useState(DEFAULT_OPONENT);
+    const [opponent, setOpponent] = useState(DEFAULT_OPPONENT);
     const [selectedSkillIndex, setSelectedSkillIndex] = useState(null);
     const [messageText, setMessageText] = useState(`あ！ やせいの\nSQLインジェクションがあらわれた！`);
     // 画面上をクリックしたときの処理
@@ -97,7 +97,7 @@ const BattleScene = () => {
     const onSelectSkill = () => {
         // stateの更新はラグがあるため、変数に一旦格納
         const tempPlayer = { ...player };
-        const tempOponent = { ...oponent };
+        const tempOpponent = { ...opponent };
         // 選択したわざ
         const selectedSkill = tempPlayer.skills[selectedSkillIndex];
         setSelectedSkillIndex(null);
@@ -113,10 +113,10 @@ const BattleScene = () => {
         .then(() => playersAttack())
         .then(() => wait(MESSAGE_SPEED))
         // 敵が攻撃を宣言！
-        .then(() => startOponentsAttack())
+        .then(() => startOpponentsAttack())
         .then(() => wait(MESSAGE_SPEED))
         // 敵の攻撃フェーズ
-        .then(() => oponentsAttack())
+        .then(() => opponentsAttack())
         .then(() => wait(MESSAGE_SPEED))
         // プレイヤーのコマンド選択に戻る
         .then(() => goToMainCommand())
@@ -141,13 +141,13 @@ const BattleScene = () => {
                         const caluculatedDamage = Math.floor(selectedSkill.attack * tempPlayer.attackUpRate);
                         setMessageText(`${player.name}に${caluculatedDamage}のダメージ！`);
                         // 攻撃を当てた後のHP計算
-                        const afterHp = tempOponent.hp - caluculatedDamage;
+                        const afterHp = tempOpponent.hp - caluculatedDamage;
                         if (afterHp > 0) {
-                            tempOponent.hp = afterHp;
-                            setOponent(tempOponent);
+                            tempOpponent.hp = afterHp;
+                            setOpponent(tempOpponent);
                         } else {
-                            tempOponent.hp = 0;
-                            setOponent(tempOponent);
+                            tempOpponent.hp = 0;
+                            setOpponent(tempOpponent);
                             throw new Error('OPONENT_DEAD');
                         }
                         break;
@@ -172,13 +172,13 @@ const BattleScene = () => {
             }
         }
         // 敵が攻撃を宣言！
-        const startOponentsAttack = () => {
-            setMessageText(`${oponent.name}のこうげき！`);
+        const startOpponentsAttack = () => {
+            setMessageText(`${opponent.name}のこうげき！`);
         }
         // 敵の攻撃フェーズ
-        const oponentsAttack = () => {
+        const opponentsAttack = () => {
             // ダメージ計算
-            const caluculatedDamage = Math.floor(tempOponent.attack / tempPlayer.deffenceUpRate);
+            const caluculatedDamage = Math.floor(tempOpponent.attack / tempPlayer.deffenceUpRate);
             setMessageText(`${tempPlayer.name}に${caluculatedDamage}のダメージ！`);
             // 攻撃を受けた後のHP計算
             const afterHp = tempPlayer.hp - caluculatedDamage;
@@ -196,7 +196,7 @@ const BattleScene = () => {
             switch (err.message) {
                 // 敵が倒れたとき、バトル終了
                 case 'OPONENT_DEAD':
-                    setMessageText(`${oponent.name}をたおした！`);
+                    setMessageText(`${opponent.name}をたおした！`);
                     setScreenStatus(STATUS.BATTLE_END);
                 break;
                 // プレイヤーが倒れたとき、バトル終了
@@ -231,7 +231,7 @@ const BattleScene = () => {
 
     return (
         <div className='battleScene' onClick={onClickHandler}>
-            <Oponent oponent={oponent} />
+            <Opponent opponent={opponent} />
             <Player player={player} />
             <Message status={screenStatus} onClickCommands={onClickCommands} skills={player.skills} selectedSkillIndex={selectedSkillIndex} messageText={messageText}/>
         </div>

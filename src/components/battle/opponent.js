@@ -3,21 +3,21 @@ import Image from './monster/Image';
 import Meter from './monster/Meter';
 import '../../css/MonstersArrangement.css';
 
-const Oponent = (props) => {
-    const { oponent } = props;
+const Opponent = (props) => {
+    const { opponent } = props;
 
     return (
         <div className='monstersContainer'>
             <div className='infoContainer'>
-                <Name name={oponent.name} level={oponent.level} textAlign='right' />
-                <Meter max={oponent.maxHp} current={oponent.hp} additionalStyles={oponentStyle.progressStyle} />
+                <Name name={opponent.name} level={opponent.level} textAlign='right' />
+                <Meter max={opponent.maxHp} current={opponent.hp} additionalStyles={opponentStyle.progressStyle} />
             </div>
-            <Image monster={oponent} size={60}>😈</Image>
+            <Image monster={opponent} size={60}>😈</Image>
         </div>
     );
 }
 
-const oponentStyle = {
+const opponentStyle = {
     progressStyle: {
         height: '15px',
         transition: '0.5s',
@@ -26,4 +26,4 @@ const oponentStyle = {
     },
 }
 
-export default Oponent;
+export default Opponent;
