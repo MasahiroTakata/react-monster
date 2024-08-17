@@ -2,14 +2,15 @@ import Name from './monster/Name';
 import Hp from './monster/HP';
 import Image from './monster/Image';
 import Meter from './monster/Meter';
+import '../../css/MonstersArrangement.css';
 
 const Player = (props) => {
     const { player } = props;
 
     return (
-        <div style={playerStyle.playerContainer}>
+        <div className='monstersContainer'>
             <Image monster={player} size={100}>🧑‍💻</Image>
-            <div style={playerStyle.infoContainer}>
+            <div className='infoContainer'>
                 <Name name={player.name} level={player.level} textAlign='left' />
                 <Hp hp={player.hp} maxHp={player.maxHp} fontSize={18} />
                 <Meter max={player.maxHp} current={player.hp} additionalStyles={playerStyle.progressStyle} />
@@ -19,26 +20,6 @@ const Player = (props) => {
 }
 
 const playerStyle = {
-    infoContainer: {
-        witdh: '100%',
-        height: '50px',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'left',
-        justifyContent: 'center',
-        paddingBottom: '12px',
-        paddingRight: '24px',
-        borderBottom: '2px solid #000',
-        borderRight: '2px solid #000'
-    },
-    playerContainer: {
-        display: 'flex',
-        justifyContent: 'start',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        padding: '12px',
-        height: '100px'
-    },
     progressStyle: {
         height: '15px',
         transition: '1.0s',

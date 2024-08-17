@@ -4,6 +4,7 @@ import Player  from "../components/battle/player";
 import Message from "../components/battle/message";
 import wait from "../utils/wait";
 import { STATUS, MESSAGE_SPEED } from "../constants/battle-constants";
+import '../css/BattleScene.css';
 
 const DEFAULT_PLAYERS_SKILL = [
     {
@@ -229,24 +230,12 @@ const BattleScene = () => {
     };
 
     return (
-        <div style={battleSceneStyle.battleScene} onClick={onClickHandler}>
+        <div className='battleScene' onClick={onClickHandler}>
             <Oponent oponent={oponent} />
             <Player player={player} />
             <Message status={screenStatus} onClickCommands={onClickCommands} skills={player.skills} selectedSkillIndex={selectedSkillIndex} messageText={messageText}/>
         </div>
     );
-}
-
-const battleSceneStyle = {
-    battleScene: {
-        width: '100%',
-        height: '100%',
-        padding: '10px',
-        boxSizing: 'border-box',
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'space-between',
-    },
 }
 
 export default BattleScene;

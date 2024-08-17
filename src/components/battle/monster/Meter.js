@@ -1,10 +1,12 @@
+import '../../../css/HPMeter.css';
+
 const Meter = (props) => {
     const{ additionalStyles } = props;
     const width = calculateWidth(props);
     const newStyle = { ...additionalStyles, width: width + '%' };
     newStyle.background = determineBackgroundColor(parseFloat(width));
     return(
-        <div style={meterStyle.meter_base}>
+        <div className='HpBase'>
             <div style={newStyle}></div>
         </div>
     );
@@ -25,12 +27,5 @@ const calculateWidth = (props) => {
 
     return (current / max) * 100;
 };
-
-const meterStyle = {
-    meter_base:{
-        height: '15px',
-        width: '100%'
-    }
-}
 
 export default Meter;

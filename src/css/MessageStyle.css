@@ -1,0 +1,57 @@
+.messageContainer {
+    position: relative;
+}
+.border {
+    border: 2px solid black;
+    border-radius: 4px;
+    background-color: white;
+}
+.normalMessageContainer {
+    height: 80px;
+    padding: 12px;
+}
+.mainCommandContainer {
+    position: absolute;
+    bottom: 0px;
+    right: 0px;
+    width: 200px;
+    height: 80px;
+    padding: 12px;
+    display: flex;
+    flex-wrap: wrap;
+}
+.mainCommandText {
+    width: 50%;
+}
+.skillDetailContainer {
+    width: 50%;
+    position: absolute;
+    padding: 12px;
+    gap: 4px;
+    bottom: 0px;
+    right: 0px;
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: column;
+    align-items: flex-end;
+}
+.skillRemainingPointText {
+    font-weight: bold;
+    font-size: 18px;
+}
+.skillSelectButton {
+    text-decoration: underline;
+}
+.skillCommandText {
+    width: 100%;
+}
+.skillComandContainer {
+    position: absolute;
+    bottom: 0px;
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: column;
+    padding: 12px;
+    gap: 4px;
+    width: 50%;
+}

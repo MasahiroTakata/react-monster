@@ -1,10 +1,12 @@
+import '../../../css/HpStyle.css';
+
 const Hp = (props) => {
     const { hp, maxHp, fontSize } = props;
     const hpColor = determineTextColor(props);
     return (
         <div>
             <span>HP</span>
-            <span style={{ fontSize: fontSize ? fontSize : 16, ...style.hpString }}><span style={{ color: hpColor }}>{hp}</span> / {maxHp}</span>
+            <span style={{ fontSize: fontSize ? fontSize : 16 }} className='numericalStyle'><span style={{ color: hpColor }}>{hp}</span> / {maxHp}</span>
         </div>)
 }
 
@@ -19,12 +21,5 @@ const determineTextColor = (props) => {
         return 'red';
     }
 };
-
-const style = {
-  hpString: {
-      fontWeight: 'bold',
-      marginLeft: '4px',
-  }
-}
 
 export default Hp;
