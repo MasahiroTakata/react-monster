@@ -8,7 +8,9 @@ const Message = (props) => {
     return (
         <div className='messageContainer'>
             <MainMessage>{messageText}</MainMessage>
+            {/* ステータスがメインコマンドの時、4択を表示する */}
             {status === STATUS.SELECT_MAIN_COMMAND && <MainCommandModal {...props} />}
+            {/* ステータスがスキルコマンドの時、技の4択を表示する */}
             {status === STATUS.SELECT_SKILL_COMMAND && <SkillCommandModal {...props} />}
         </div>
     );
@@ -35,6 +37,7 @@ const MainCommandModal = (props) => {
 }
 // 4択の表示
 const MainCommand = (props) => {
+    // childrenは、たたかうとかどうぐなどの4択が格納されている
     const { clickEvent, children } = props;
 
     return (<Command className='mainCommandText' onClick={clickEvent}>{children}</Command>);

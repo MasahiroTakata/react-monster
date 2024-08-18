@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import Opponent from "../components/battle/opponent";
-import Player  from "../components/battle/player";
+import Player from "../components/battle/player";
 import Message from "../components/battle/message";
 import wait from "../utils/wait";
 import { STATUS, MESSAGE_SPEED } from "../constants/battle-constants";
@@ -65,15 +65,19 @@ const BattleScene = () => {
     // 画面上をクリックしたときの処理
     const onClickHandler = () => {
         switch (screenStatus) {
+            // 初期画面でクリックした時
             case STATUS.BATTLE_START:
                 goToMainCommand();
                 break;
+            // 決着がついた時
             case STATUS.BATTLE_END:
                 if (window.confirm('リトライしますか？')) {
                     window.location.reload();
                 }
                 break;
+            // 実装されていない選択肢（どうぐ、リアモン、にげる）を選んだ場合
             case STATUS.NOT_FOUND:
+                // メイン画面に戻る
                 goToMainCommand();
                 break;
             default:
@@ -124,8 +128,8 @@ const BattleScene = () => {
         .catch(err => handleError(err));
         // プレイヤーが攻撃を宣言！
         const startPlayersAttack = () => {
-        setMessageText(` ${player.name}の${selectedSkill.name}！`);
-        setScreenStatus(STATUS.ATTACK_PHASE);
+            setMessageText(` ${player.name}の${selectedSkill.name}！`);
+            setScreenStatus(STATUS.ATTACK_PHASE);
         }
         // プレイヤーの攻撃フェーズ
         const playersAttack = () => {
@@ -214,6 +218,7 @@ const BattleScene = () => {
     // 未開発のボタンをクリックしたときの処理
     const onClickNotFound = () => {
         setMessageText('この機能はまだできていないのじゃ！');
+        // ステータスを更新し、画面をクリックするとonClickHandlerが呼ばれる流れ
         setScreenStatus(STATUS.NOT_FOUND);
     }
     // 戻るを選択したときの処理
@@ -230,6 +235,7 @@ const BattleScene = () => {
     };
 
     return (
+        // 以下のdiv内をクリックした時、onClickイベント発火
         <div className='battleScene' onClick={onClickHandler}>
             <Opponent opponent={opponent} />
             <Player player={player} />
