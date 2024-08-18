@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import Oponent from "../components/battle/oponent";
-import Player  from "../components/battle/player";
+import Opponent from "../components/battle/opponent";
+import Player from "../components/battle/player";
 import Message from "../components/battle/message";
 import wait from "../utils/wait";
 import { STATUS, MESSAGE_SPEED } from "../constants/battle-constants";
+import '../css/BattleScene.css';
 
 const DEFAULT_PLAYERS_SKILL = [
     {
@@ -47,7 +48,7 @@ const DEFAULT_PLAYER = {
     skills: DEFAULT_PLAYERS_SKILL,
 };
 
-const DEFAULT_OPONENT = {
+const DEFAULT_OPPONENT = {
     name: 'SQLインジェクション',
     level: 5,
     hp: 100,
@@ -58,27 +59,31 @@ const DEFAULT_OPONENT = {
 const BattleScene = () => {
     const [screenStatus, setScreenStatus] = useState(STATUS.BATTLE_START);
     const [player, setPlayer] = useState(DEFAULT_PLAYER);
-    const [oponent, setOponent] = useState(DEFAULT_OPONENT);
+    const [opponent, setOpponent] = useState(DEFAULT_OPPONENT);
     const [selectedSkillIndex, setSelectedSkillIndex] = useState(null);
     const [messageText, setMessageText] = useState(`あ！ やせいの\nSQLインジェクションがあらわれた！`);
     // 画面上をクリックしたときの処理
     const onClickHandler = () => {
         switch (screenStatus) {
-        case STATUS.BATTLE_START:
-            goToMainCommand();
-            break;
-        case STATUS.BATTLE_END:
-            if (window.confirm('リトライしますか？')) {
-                window.location.reload();
-            }
-            break;
-        case STATUS.NOT_FOUND:
-            goToMainCommand();
-            break;
-        default:
-            break;
+            // 初期画面でクリックした時
+            case STATUS.BATTLE_START:
+                goToMainCommand();
+                break;
+            // 決着がついた時
+            case STATUS.BATTLE_END:
+                if (window.confirm('リトライしますか？')) {
+                    window.location.reload();
+                }
+                break;
+            // 実装されていない選択肢（どうぐ、リアモン、にげる）を選んだ場合
+            case STATUS.NOT_FOUND:
+                // メイン画面に戻る
+                goToMainCommand();
+                break;
+            default:
+                break;
         }
-  }
+    }
     // メインコマンド選択に戻る
     const goToMainCommand = () => {
         setScreenStatus(STATUS.SELECT_MAIN_COMMAND);
@@ -96,16 +101,13 @@ const BattleScene = () => {
     const onSelectSkill = () => {
         // stateの更新はラグがあるため、変数に一旦格納
         const tempPlayer = { ...player };
-        const tempOponent = { ...oponent };
-
+        const tempOpponent = { ...opponent };
         // 選択したわざ
         const selectedSkill = tempPlayer.skills[selectedSkillIndex];
         setSelectedSkillIndex(null);
-
         // わざのPPを減らす
         tempPlayer.skills[selectedSkillIndex].pp --;
         setPlayer(tempPlayer);
-
         // 時間経過で戦闘を自動送りするため、非同期処理を実行
         Promise.resolve()
         // プレイヤーが攻撃を宣言！
@@ -115,27 +117,24 @@ const BattleScene = () => {
         .then(() => playersAttack())
         .then(() => wait(MESSAGE_SPEED))
         // 敵が攻撃を宣言！
-        .then(() => startOponentsAttack())
+        .then(() => startOpponentsAttack())
         .then(() => wait(MESSAGE_SPEED))
         // 敵の攻撃フェーズ
-        .then(() => oponentsAttack())
+        .then(() => opponentsAttack())
         .then(() => wait(MESSAGE_SPEED))
         // プレイヤーのコマンド選択に戻る
         .then(() => goToMainCommand())
         // 例外発生時 
         .catch(err => handleError(err));
-
         // プレイヤーが攻撃を宣言！
         const startPlayersAttack = () => {
-        setMessageText(` ${player.name}の${selectedSkill.name}！`);
-        setScreenStatus(STATUS.ATTACK_PHASE);
+            setMessageText(` ${player.name}の${selectedSkill.name}！`);
+            setScreenStatus(STATUS.ATTACK_PHASE);
         }
-
         // プレイヤーの攻撃フェーズ
         const playersAttack = () => {
             // わざが命中したかどうか
             const isMissed = Math.random() < selectedSkill.missRate / 100;
-
             if (isMissed) {
                 setMessageText(`しかし、はずれてしまった！`);
             } else {
@@ -145,20 +144,17 @@ const BattleScene = () => {
                         // ダメージ計算
                         const caluculatedDamage = Math.floor(selectedSkill.attack * tempPlayer.attackUpRate);
                         setMessageText(`${player.name}に${caluculatedDamage}のダメージ！`);
-
                         // 攻撃を当てた後のHP計算
-                        const afterHp = tempOponent.hp - caluculatedDamage;
-
+                        const afterHp = tempOpponent.hp - caluculatedDamage;
                         if (afterHp > 0) {
-                            tempOponent.hp = afterHp;
-                            setOponent(tempOponent);
+                            tempOpponent.hp = afterHp;
+                            setOpponent(tempOpponent);
                         } else {
-                            tempOponent.hp = 0;
-                            setOponent(tempOponent);
+                            tempOpponent.hp = 0;
+                            setOpponent(tempOpponent);
                             throw new Error('OPONENT_DEAD');
                         }
                         break;
-
                     case 'のうりょくUP':
                         if (selectedSkill.attackUpRate > 0) {
                             // 攻撃UPわざの場合
@@ -179,18 +175,15 @@ const BattleScene = () => {
                 }
             }
         }
-
         // 敵が攻撃を宣言！
-        const startOponentsAttack = () => {
-            setMessageText(`${oponent.name}のこうげき！`);
+        const startOpponentsAttack = () => {
+            setMessageText(`${opponent.name}のこうげき！`);
         }
-
         // 敵の攻撃フェーズ
-        const oponentsAttack = () => {
+        const opponentsAttack = () => {
             // ダメージ計算
-            const caluculatedDamage = Math.floor(tempOponent.attack / tempPlayer.deffenceUpRate);
+            const caluculatedDamage = Math.floor(tempOpponent.attack / tempPlayer.deffenceUpRate);
             setMessageText(`${tempPlayer.name}に${caluculatedDamage}のダメージ！`);
-
             // 攻撃を受けた後のHP計算
             const afterHp = tempPlayer.hp - caluculatedDamage;
             if (afterHp > 0) {
@@ -204,33 +197,35 @@ const BattleScene = () => {
         }
 
         const handleError = (err) => {
-        switch (err.message) {
-            // 敵が倒れたとき、バトル終了
-            case 'OPONENT_DEAD':
-            setMessageText(`${oponent.name}をたおした！`);
-            setScreenStatus(STATUS.BATTLE_END);
-            break;
-            // プレイヤーが倒れたとき、バトル終了
-            case 'PLAYER_DEAD':
-            setMessageText(`${player.name}はたおれてしまった！`);
-            setScreenStatus(STATUS.BATTLE_END);
-            break;
-            // その他のエラー
-            default:
-            alert(err);
-            break;
-        }
+            switch (err.message) {
+                // 敵が倒れたとき、バトル終了
+                case 'OPONENT_DEAD':
+                    setMessageText(`${opponent.name}をたおした！`);
+                    setScreenStatus(STATUS.BATTLE_END);
+                break;
+                // プレイヤーが倒れたとき、バトル終了
+                case 'PLAYER_DEAD':
+                    setMessageText(`${player.name}はたおれてしまった！`);
+                    setScreenStatus(STATUS.BATTLE_END);
+                break;
+                // その他のエラー
+                default:
+                    alert(err);
+                break;
+            }
         }
     };
     // 未開発のボタンをクリックしたときの処理
     const onClickNotFound = () => {
         setMessageText('この機能はまだできていないのじゃ！');
+        // ステータスを更新し、画面をクリックするとonClickHandlerが呼ばれる流れ
         setScreenStatus(STATUS.NOT_FOUND);
     }
     // 戻るを選択したときの処理
     const onClickReturnMain = () => {
         goToMainCommand();
     }
+
     const onClickCommands = {
         onClickFight,
         onClickReturnMain,
@@ -240,24 +235,13 @@ const BattleScene = () => {
     };
 
     return (
-        <div style={battleSceneStyle.battleScene} onClick={onClickHandler}>
-            <Oponent oponent={oponent} />
+        // 以下のdiv内をクリックした時、onClickイベント発火
+        <div className='battleScene' onClick={onClickHandler}>
+            <Opponent opponent={opponent} />
             <Player player={player} />
             <Message status={screenStatus} onClickCommands={onClickCommands} skills={player.skills} selectedSkillIndex={selectedSkillIndex} messageText={messageText}/>
         </div>
     );
-}
-
-const battleSceneStyle = {
-    battleScene: {
-        width: '100%',
-        height: '100%',
-        padding: '10px',
-        boxSizing: 'border-box',
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'space-between',
-    },
 }
 
 export default BattleScene;
